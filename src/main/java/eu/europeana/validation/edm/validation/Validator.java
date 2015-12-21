@@ -3,6 +3,8 @@ package eu.europeana.validation.edm.validation;
 import eu.europeana.validation.edm.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -66,6 +68,12 @@ class EDMParser{
     private EDMParser(){
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            ClasspathResourceResolver resolver = new ClasspathResourceResolver();
+            resolver.setPrefix("schema");
+            factory.setResourceResolver(resolver);
+
+            factory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
+            factory.setFeature("http://apache.org/xml/features/honour-all-schemaLocations", true);
 
             Schema edmExternalSchema = factory
                     .newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream(Constants.EDM_EXTERNAL_SCHEMA_LOCATION)));
@@ -76,10 +84,14 @@ class EDMParser{
             edmInternalValidator = edmInternalSchema.newValidator();
             DocumentBuilderFactory parseFactory = DocumentBuilderFactory.newInstance();
             parseFactory.setNamespaceAware(true);
+            parseFactory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
+            parseFactory.setFeature("http://apache.org/xml/features/honour-all-schemaLocations", true);
             edmParser = parseFactory.newDocumentBuilder();
         } catch (SAXException e) {
+            e.printStackTrace();
             LOGGER.log(Level.SEVERE,e.getMessage());
         } catch (ParserConfigurationException e) {
+            e.printStackTrace();
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
 

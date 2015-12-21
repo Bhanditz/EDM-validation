@@ -23,13 +23,13 @@ public class Test {
         DocumentBuilderFactory parserFactory = DocumentBuilderFactory.newInstance();
         parserFactory.setNamespaceAware(true);
         DocumentBuilder parser = parserFactory.newDocumentBuilder();
-        Document document = parser.parse(new File("/home/gmamakis/test/Item_64344642.xml"));
+        Document document = parser.parse(new File("/home/ymamakis/test_validation/Item_35834473.xml"));
 
         // create a SchemaFactory capable of understanding WXS schemas
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         // load a WXS schema, represented by a Schema instance
-        Source schemaFile = new StreamSource(new File("/home/gmamakis/workspace/validation/src/main/resources/schema/EDM.xsd"));
+        Source schemaFile = new StreamSource(new File("/home/ymamakis/git/EDM-validation/src/main/resources/schema/EDM.xsd"));
         Schema schema = factory.newSchema(schemaFile);
 
         // create a Validator instance, which can be used to validate an instance document
