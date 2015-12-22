@@ -65,6 +65,10 @@ public class Validator implements Callable<ValidationResult> {
         ValidationResult res = new ValidationResult();
         res.setMessage(e.getMessage());
         res.setRecordId(StringUtils.substringBetween(document,"ProvidedCHO",">"));
+        if(StringUtils.isEmpty(res.getRecordId())){
+            res.setRecordId("Missing record identifier for EDM record");
+        }
+
         res.setSuccess(false);
         return res;
     }
