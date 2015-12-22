@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.Reader;
 
 /**
+ * Class enabling classpath XSD loading for validation
  * Created by ymamakis on 12/21/15.
  */
 public class ClasspathLSInput implements LSInput {

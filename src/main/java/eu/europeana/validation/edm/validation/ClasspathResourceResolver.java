@@ -1,6 +1,5 @@
 package eu.europeana.validation.edm.validation;
 
-import com.sun.org.apache.xerces.internal.impl.xs.util.LSInputListImpl;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
@@ -11,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Class enabling classpath XSD reading for split XSDs. This is because of an issue with JAXP XSD loading
  * Created by ymamakis on 12/21/15.
  */
 public class ClasspathResourceResolver implements LSResourceResolver {
@@ -19,7 +19,7 @@ public class ClasspathResourceResolver implements LSResourceResolver {
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
         try {
             LSInput input = new ClasspathLSInput();
-            InputStream stream =null;
+            InputStream stream;
             String newSystemId = prefix+"/"+systemId;
             if(!newSystemId.startsWith("http")) {
                 stream = getClass().getClassLoader().getResourceAsStream(newSystemId);

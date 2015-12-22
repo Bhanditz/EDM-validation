@@ -1,6 +1,7 @@
 package eu.europeana.validation.edm;
 
 /**
+ * Constants used for Schema paths and selection
  * Created by gmamakis on 18-12-15.
  */
 public class Constants {
