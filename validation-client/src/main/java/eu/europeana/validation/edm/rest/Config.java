@@ -16,7 +16,7 @@ public class Config {
     public Config(){
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/home/ymamakis/git/EDM-validation/validation-client/src/main/resources/validation.properties"));
+            props.load(Config.class.getResourceAsStream("validation.properties"));
             validationPath= props.getProperty("validation.path");
         } catch (IOException e) {
             e.printStackTrace();
