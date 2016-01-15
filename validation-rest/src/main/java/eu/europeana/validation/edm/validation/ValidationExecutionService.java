@@ -50,6 +50,9 @@ public class ValidationExecutionService {
         }
         ValidationResultList resultList = new ValidationResultList();
         resultList.setResultList(results);
+        if(resultList.getResultList().size()==0) {
+            resultList.setSuccess(true);
+        }
         return resultList;
 
     }

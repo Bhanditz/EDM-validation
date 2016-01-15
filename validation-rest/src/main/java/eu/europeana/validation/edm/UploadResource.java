@@ -100,4 +100,21 @@ public class UploadResource {
         }
     }
 
+    @POST
+    @Path("/batch/records/{schema}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response batchValidate(@PathParam("schema") String targetSchema, @FormParam("records") List<String> documents){
+        try {
+            ValidationResultList list = validator.batchValidation(targetSchema,documents);
+            if(list.getResultList()!=null||list.getResultList().size()==0){
+                list.setSuccess(true);
+            }
+            return Response.ok().entity(list).build();
+        } catch (InterruptedException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        } catch (ExecutionException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
 }
