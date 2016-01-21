@@ -10,7 +10,7 @@
 			<module>validation-client</module>
 			<module>validation-common</module>
 		</modules>
-		
+	
 	<build>
 		<plugins>
 			<plugin>
