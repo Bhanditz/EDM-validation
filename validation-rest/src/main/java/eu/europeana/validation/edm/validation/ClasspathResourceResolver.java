@@ -20,13 +20,13 @@ public class ClasspathResourceResolver implements LSResourceResolver {
         try {
             LSInput input = new ClasspathLSInput();
             InputStream stream;
-            String newSystemId = prefix+"/"+systemId;
-            if(!newSystemId.startsWith("http")) {
-                stream = getClass().getClassLoader().getResourceAsStream(newSystemId);
+            if(!systemId.startsWith("http")) {
+                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Reading classpath stream: " + (prefix+"/"+systemId));
+                stream = getClass().getClassLoader().getResourceAsStream(prefix+"/"+systemId);
             }else {
-                stream = new URL(newSystemId).openStream();
+              Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Reading URL stream: " + systemId);
+                stream = new URL(systemId).openStream();
             }
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "reading "+systemId);
             input.setPublicId(publicId);
             input.setSystemId(systemId);
             input.setBaseURI(baseURI);
