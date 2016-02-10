@@ -1,8 +1,12 @@
 package eu.europeana.validation.edm;
 
 
+import eu.europeana.validation.edm.model.ValidationResult;
 import eu.europeana.validation.edm.model.ValidationResultList;
 import eu.europeana.validation.edm.validation.ValidationExecutionService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
@@ -27,6 +31,7 @@ import java.util.concurrent.ExecutionException;
  * REST API Implementation of the Validation Service
  */
 @Path("/")
+@Api( value = "/", description = "EDM External and Internal validation" )
 public class UploadResource {
 
 
@@ -43,7 +48,9 @@ public class UploadResource {
     @POST
     @Path("/{schema}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validate(@PathParam("schema") String targetSchema, @FormParam("record") String record) {
+
+    @ApiOperation(value = "Validate single record based on schema", response = ValidationResult.class)
+    public Response validate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="record")@FormParam("record") String record) {
         try {
 
             return Response.ok().entity(validator.singleValidation(targetSchema, record)).build();
@@ -65,9 +72,10 @@ public class UploadResource {
     @Path("/batch/{schema}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response batchValidate(@PathParam("schema") String targetSchema,
-                                  @FormDataParam("file") InputStream zipFile,
-                                  @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+    @ApiOperation(value = "Validate zip file based on schema", response = ValidationResultList.class)
+    public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema,
+                                  @ApiParam(value="file")@FormDataParam("file") InputStream zipFile,
+                                  @ApiParam(value="file")@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 
 
         try {
@@ -100,10 +108,17 @@ public class UploadResource {
         }
     }
 
+    /**
+     * Batch validation based on a list of records
+     * @param targetSchema The target schema
+     * @param documents The list of records
+     * @return The Validation results
+     */
     @POST
     @Path("/batch/records/{schema}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response batchValidate(@PathParam("schema") String targetSchema, @FormParam("records") List<String> documents){
+    @ApiOperation(value = "Batch validate based on schema", response = ValidationResult.class)
+    public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="records")@FormParam("records") List<String> documents){
         try {
             ValidationResultList list = validator.batchValidation(targetSchema,documents);
             if(list.getResultList()!=null||list.getResultList().size()==0){
