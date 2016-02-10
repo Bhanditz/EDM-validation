@@ -11,6 +11,7 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 @Api( value = "/", description = "EDM External and Internal validation" )
 public class UploadResource {
 
+    private static final Logger logger =  Logger.getRootLogger();
 
     private final ValidationExecutionService validator = new ValidationExecutionService();
 
@@ -55,6 +57,7 @@ public class UploadResource {
 
             return Response.ok().entity(validator.singleValidation(targetSchema, record)).build();
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         }
 
@@ -98,12 +101,16 @@ public class UploadResource {
             return Response.ok().entity(list).build();
 
         } catch (IOException e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         } catch (InterruptedException e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         } catch (ExecutionException e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         } catch (ZipException e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         }
     }
@@ -126,8 +133,10 @@ public class UploadResource {
             }
             return Response.ok().entity(list).build();
         } catch (InterruptedException e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         } catch (ExecutionException e) {
+            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         }
     }

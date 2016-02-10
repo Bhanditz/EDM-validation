@@ -4,6 +4,7 @@ import eu.europeana.validation.edm.Constants;
 import eu.europeana.validation.edm.model.ValidationResult;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -17,8 +18,6 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * EDM Validator class
@@ -26,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class Validator implements Callable<ValidationResult> {
 
-
+    private static final Logger logger =  Logger.getRootLogger();
     /**
      * Constructor specifying the schema to validate against and the document
      * @param schema
@@ -46,7 +45,8 @@ public class Validator implements Callable<ValidationResult> {
      * @return The outcome of the Validation
      */
     private ValidationResult validate () {
-        Logger.getLogger("test").log(Level.SEVERE, "Validating");
+        logger.info("Validation started");
+
         InputSource source = new InputSource();
         source.setByteStream(new ByteArrayInputStream(document.getBytes()));
         try {
@@ -91,8 +91,7 @@ public class Validator implements Callable<ValidationResult> {
  * Helper class for EDM validation exposing two validator and a DOMParser
  */
 class EDMParser{
-    private final static Logger LOGGER = Logger.getLogger(EDMParser.class.getName());
-
+    private static final Logger logger =  Logger.getRootLogger();
 
 
     private static DocumentBuilder edmParser;
@@ -127,10 +126,10 @@ class EDMParser{
             edmParser = parseFactory.newDocumentBuilder();
         } catch (SAXException e) {
             e.printStackTrace();
-            LOGGER.log(Level.SEVERE,e.getMessage());
+            logger.error(e.getMessage());
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
-            LOGGER.log(Level.SEVERE, e.getMessage());
+            logger.error(e.getMessage());
         }
 
 

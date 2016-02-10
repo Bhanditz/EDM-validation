@@ -1,13 +1,12 @@
 package eu.europeana.validation.edm.validation;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Class enabling classpath XSD reading for split XSDs. This is because of an issue with JAXP XSD loading
@@ -15,16 +14,15 @@ import java.util.logging.Logger;
  */
 public class ClasspathResourceResolver implements LSResourceResolver {
     private String prefix;
+    private static final Logger logger =  Logger.getRootLogger();
     @Override
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
         try {
             LSInput input = new ClasspathLSInput();
             InputStream stream;
             if(!systemId.startsWith("http")) {
-                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Reading classpath stream: " + (prefix+"/"+systemId));
                 stream = getClass().getClassLoader().getResourceAsStream(prefix+"/"+systemId);
             }else {
-              Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Reading URL stream: " + systemId);
                 stream = new URL(systemId).openStream();
             }
             input.setPublicId(publicId);
@@ -35,6 +33,7 @@ public class ClasspathResourceResolver implements LSResourceResolver {
             return input;
         } catch (Exception e){
             e.printStackTrace();
+            logger.error(e.getMessage());
         } return null;
     }
     /**
