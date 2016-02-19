@@ -54,8 +54,12 @@ public class UploadResource {
     @ApiOperation(value = "Validate single record based on schema", response = ValidationResult.class)
     public Response validate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="record")@FormParam("record") String record) {
         try {
-
-            return Response.ok().entity(validator.singleValidation(targetSchema, record)).build();
+            ValidationResult result = validator.singleValidation(targetSchema, record);
+            if(result.isSuccess()) {
+                return Response.ok().entity(result).build();
+            } else {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity(result).build();
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
@@ -98,7 +102,11 @@ public class UploadResource {
                 list.setSuccess(true);
             }
             FileUtils.forceDelete(new File(fileName));
-            return Response.ok().entity(list).build();
+            if(list.isSuccess()) {
+                return Response.ok().entity(list).build();
+            } else {
+               return  Response.status(Response.Status.NOT_ACCEPTABLE).entity(list).build();
+            }
 
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -131,7 +139,12 @@ public class UploadResource {
             if(list.getResultList()!=null||list.getResultList().size()==0){
                 list.setSuccess(true);
             }
-            return Response.ok().entity(list).build();
+            if(list.isSuccess()) {
+                return Response.ok().entity(list).build();
+            } else {
+               return Response.status(Response.Status.NOT_ACCEPTABLE).entity(list).build();
+            }
+
         } catch (InterruptedException e) {
             logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
