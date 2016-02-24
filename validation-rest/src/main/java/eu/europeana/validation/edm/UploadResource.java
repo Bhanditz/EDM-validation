@@ -1,6 +1,9 @@
 package eu.europeana.validation.edm;
 
 
+import eu.europeana.validation.edm.exceptions.BatchValidationException;
+import eu.europeana.validation.edm.exceptions.ServerException;
+import eu.europeana.validation.edm.exceptions.ValidationException;
 import eu.europeana.validation.edm.model.ValidationResult;
 import eu.europeana.validation.edm.model.ValidationResultList;
 import eu.europeana.validation.edm.validation.ValidationExecutionService;
@@ -50,20 +53,23 @@ public class UploadResource {
     @POST
     @Path("/{schema}")
     @Produces(MediaType.APPLICATION_JSON)
-
     @ApiOperation(value = "Validate single record based on schema", response = ValidationResult.class)
-    public Response validate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="record")@FormParam("record") String record) {
+    public Response validate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="record")@FormParam("record") String record) throws ValidationException, ServerException {
+
+
         try {
-            ValidationResult result = validator.singleValidation(targetSchema, record);
+            ValidationResult result = null;
+            result = validator.singleValidation(targetSchema, record);
             if(result.isSuccess()) {
                 return Response.ok().entity(result).build();
             } else {
-                return Response.status(Response.Status.NOT_ACCEPTABLE).entity(result).build();
+                throw new ValidationException(result.getRecordId(),result.getMessage());
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
+        } catch (InterruptedException|ExecutionException e) {
+            throw new ServerException(e.getMessage());
         }
+
+
 
     }
 
@@ -82,7 +88,7 @@ public class UploadResource {
     @ApiOperation(value = "Validate zip file based on schema", response = ValidationResultList.class)
     public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema,
                                   @ApiParam(value="file")@FormDataParam("file") InputStream zipFile,
-                                  @ApiParam(value="file")@FormDataParam("file") FormDataContentDisposition fileDisposition) {
+                                  @ApiParam(value="file")@FormDataParam("file") FormDataContentDisposition fileDisposition) throws ServerException, BatchValidationException {
 
 
         try {
@@ -105,21 +111,12 @@ public class UploadResource {
             if(list.isSuccess()) {
                 return Response.ok().entity(list).build();
             } else {
-               return  Response.status(Response.Status.NOT_ACCEPTABLE).entity(list).build();
+               throw new BatchValidationException("Batch validation failed",list);
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException|ExecutionException|ZipException e) {
             logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
-        } catch (ExecutionException e) {
-            logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
-        } catch (ZipException e) {
-            logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
+            throw new ServerException(e.getMessage());
         }
     }
 
@@ -133,7 +130,7 @@ public class UploadResource {
     @Path("/batch/records/{schema}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Batch validate based on schema", response = ValidationResult.class)
-    public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="records")@FormParam("records") List<String> documents){
+    public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="records")@FormParam("records") List<String> documents) throws ServerException, BatchValidationException {
         try {
             ValidationResultList list = validator.batchValidation(targetSchema,documents);
             if(list.getResultList()!=null||list.getResultList().size()==0){
@@ -142,15 +139,12 @@ public class UploadResource {
             if(list.isSuccess()) {
                 return Response.ok().entity(list).build();
             } else {
-               return Response.status(Response.Status.NOT_ACCEPTABLE).entity(list).build();
+               throw new BatchValidationException("Batch validation failed", list);
             }
 
-        } catch (InterruptedException e) {
+        } catch (InterruptedException|ExecutionException e) {
             logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
-        } catch (ExecutionException e) {
-            logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
+            throw new ServerException(e.getMessage());
         }
     }
 

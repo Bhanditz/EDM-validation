@@ -1,6 +1,12 @@
 package eu.europeana.validation.edm.config;
 
 import eu.europeana.validation.edm.UploadResource;
+import eu.europeana.validation.edm.exceptions.BatchValidationException;
+import eu.europeana.validation.edm.exceptions.ServerException;
+import eu.europeana.validation.edm.exceptions.ValidationException;
+import eu.europeana.validation.edm.exceptions.exceptionmappers.BatchValidationExceptionMapper;
+import eu.europeana.validation.edm.exceptions.exceptionmappers.ServerExceptionMapper;
+import eu.europeana.validation.edm.exceptions.exceptionmappers.ValidationExceptionMapper;
 import eu.europeana.validation.edm.model.ValidationResult;
 import eu.europeana.validation.edm.model.ValidationResultList;
 
@@ -23,6 +29,12 @@ public class Application extends ResourceConfig {
 
         register(ValidationResult.class);
         register(ValidationResultList.class);
+        register(ValidationExceptionMapper.class);
+        register(ServerExceptionMapper.class);
+        register(BatchValidationExceptionMapper.class);
+        register(ValidationException.class);
+        register(ServerException.class);
+        register(BatchValidationException.class);
         register(io.swagger.jaxrs.listing.ApiListingResource.class);
         register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 

@@ -26,9 +26,9 @@ public class TestValidationExecution {
 
     @Test
     public void testSingleValidationSuccess() throws IOException, ExecutionException, InterruptedException {
-        String fileToValidate = IOUtils.toString(new FileInputStream("src/test/resources/Item_35834473.xml"));
+        String fileToValidate = IOUtils.toString(new FileInputStream("src/test/resources/Item_35834473_test.xml"));
         ValidationExecutionService service = new ValidationExecutionService();
-        ValidationResult result = service.singleValidation("EDM-INTERNAL",fileToValidate);
+        ValidationResult result = service.singleValidation("EDM-EXTERNAL",fileToValidate);
         Assert.assertEquals(true,result.isSuccess());
         Assert.assertNull(result.getRecordId());
         Assert.assertNull(result.getMessage());
@@ -46,7 +46,7 @@ public class TestValidationExecution {
 
     @Test
     public void testSingleValidationFailureWrongSchema() throws IOException, ExecutionException, InterruptedException {
-        String fileToValidate = IOUtils.toString(new FileInputStream("src/test/resources/Item_35834473.xml"));
+        String fileToValidate = IOUtils.toString(new FileInputStream("src/test/resources/Item_35834473_test.xml"));
         ValidationExecutionService service = new ValidationExecutionService();
         ValidationResult result = service.singleValidation("EDM-EXTERNAL",fileToValidate);
         Assert.assertEquals(false,result.isSuccess());
