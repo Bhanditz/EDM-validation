@@ -135,11 +135,6 @@ public class Validator implements Callable<ValidationResult> {
  * Helper class for EDM validation exposing two validator and a DOMParser
  */
 class EDMParser {
-    private static final Logger logger = Logger.getRootLogger();
-
-
-    private static javax.xml.validation.Validator edmInternalValidator;
-    private static javax.xml.validation.Validator edmExternalValidator;
     private static EDMParser p;
 
     private EDMParser() {

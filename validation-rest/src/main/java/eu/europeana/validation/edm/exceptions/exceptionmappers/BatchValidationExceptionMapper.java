@@ -11,6 +11,6 @@ import javax.ws.rs.ext.ExceptionMapper;
 public class BatchValidationExceptionMapper implements ExceptionMapper<BatchValidationException> {
     @Override
     public Response toResponse(BatchValidationException e) {
-        return  Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getList()).build();
+        return  Response.status(Response.Status.fromStatusCode(422)).entity(e.getList()).build();
     }
 }

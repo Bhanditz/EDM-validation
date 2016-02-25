@@ -21,6 +21,6 @@ public class ValidationExceptionMapper implements ExceptionMapper<ValidationExce
         }
         result.setMessage(e.getMessage());
         result.setSuccess(false);
-        return Response.status(Response.Status.NOT_ACCEPTABLE).entity(result).build();
+        return Response.status(Response.Status.fromStatusCode(422)).entity(result).build();
     }
 }
