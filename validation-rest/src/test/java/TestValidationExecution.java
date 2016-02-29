@@ -28,7 +28,7 @@ public class TestValidationExecution {
     public void testSingleValidationSuccess() throws IOException, ExecutionException, InterruptedException {
         String fileToValidate = IOUtils.toString(new FileInputStream("src/test/resources/Item_35834473_test.xml"));
         ValidationExecutionService service = new ValidationExecutionService();
-        ValidationResult result = service.singleValidation("EDM-EXTERNAL",fileToValidate);
+        ValidationResult result = service.singleValidation("EDM-INTERNAL",fileToValidate);
         Assert.assertEquals(true,result.isSuccess());
         Assert.assertNull(result.getRecordId());
         Assert.assertNull(result.getMessage());
