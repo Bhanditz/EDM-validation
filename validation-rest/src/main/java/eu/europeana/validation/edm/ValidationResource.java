@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Path("/")
 @Api( value = "/", description = "EDM External and Internal validation" )
-public class UploadResource {
+public class ValidationResource {
 
     private static final Logger logger =  Logger.getRootLogger();
 
@@ -54,12 +54,14 @@ public class UploadResource {
     @Path("/{schema}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Validate single record based on schema", response = ValidationResult.class)
-    public Response validate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="record")@FormParam("record") String record) throws ValidationException, ServerException {
+    public Response validate(@ApiParam(value="schema")@PathParam("schema") String targetSchema,
+                             @ApiParam(value="record")@FormParam("record")@DefaultValue("undefined") String record,
+                             @ApiParam(value="version")@QueryParam("version") String version) throws ValidationException, ServerException {
 
 
         try {
             ValidationResult result = null;
-            result = validator.singleValidation(targetSchema, record);
+            result = validator.singleValidation(targetSchema, version, record);
             if(result.isSuccess()) {
                 return Response.ok().entity(result).build();
             } else {
@@ -87,6 +89,7 @@ public class UploadResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Validate zip file based on schema", response = ValidationResultList.class)
     public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema,
+                                  @ApiParam(value="version")@PathParam("version")@DefaultValue("undefined") String version,
                                   @ApiParam(value="file")@FormDataParam("file") InputStream zipFile,
                                   @ApiParam(value="file")@FormDataParam("file") FormDataContentDisposition fileDisposition) throws ServerException, BatchValidationException {
 
@@ -103,7 +106,7 @@ public class UploadResource {
             for (File input : files) {
                 xmls.add(IOUtils.toString(new FileInputStream(input)));
             }
-            ValidationResultList list = validator.batchValidation(targetSchema, xmls);
+            ValidationResultList list = validator.batchValidation(targetSchema, version, xmls);
             if(list.getResultList()!=null||list.getResultList().size()==0){
                 list.setSuccess(true);
             }
@@ -130,9 +133,12 @@ public class UploadResource {
     @Path("/batch/records/{schema}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Batch validate based on schema", response = ValidationResult.class)
-    public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema, @ApiParam(value="records")@FormParam("records") List<String> documents) throws ServerException, BatchValidationException {
+    public Response batchValidate(@ApiParam(value="schema")@PathParam("schema") String targetSchema,
+                                  @ApiParam(value="version")@PathParam("version")@DefaultValue("undefined") String version,
+                                  @ApiParam(value="records")@FormParam("records") List<String> documents)
+            throws ServerException, BatchValidationException {
         try {
-            ValidationResultList list = validator.batchValidation(targetSchema,documents);
+            ValidationResultList list = validator.batchValidation(targetSchema,version,documents);
             if(list.getResultList()!=null||list.getResultList().size()==0){
                 list.setSuccess(true);
             }

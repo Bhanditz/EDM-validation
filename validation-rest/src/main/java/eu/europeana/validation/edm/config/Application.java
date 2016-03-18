@@ -1,6 +1,7 @@
 package eu.europeana.validation.edm.config;
 
-import eu.europeana.validation.edm.UploadResource;
+import eu.europeana.validation.edm.ValidationManagementResource;
+import eu.europeana.validation.edm.ValidationResource;
 import eu.europeana.validation.edm.exceptions.BatchValidationException;
 import eu.europeana.validation.edm.exceptions.ServerException;
 import eu.europeana.validation.edm.exceptions.ValidationException;
@@ -24,7 +25,8 @@ import javax.ws.rs.ApplicationPath;
 public class Application extends ResourceConfig {
     public Application(){
         super();
-        register(UploadResource.class);
+        register(ValidationResource.class);
+        register(ValidationManagementResource.class);
         register(MultiPartFeature.class);
 
         register(ValidationResult.class);

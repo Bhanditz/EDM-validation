@@ -95,7 +95,12 @@
 			<artifactId>Saxon-HE</artifactId>
 			<version>9.7.0-3</version>
 		</dependency>
-
+		<dependency>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.mongo</artifactId>
+			<version>1.50.2</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<properties>
 		<version.jersey>2.22.1</version.jersey>

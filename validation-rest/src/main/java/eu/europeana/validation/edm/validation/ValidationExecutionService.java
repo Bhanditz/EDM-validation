@@ -16,17 +16,18 @@ import java.util.concurrent.*;
 public class ValidationExecutionService {
     private static final ExecutorService es = Executors.newFixedThreadPool(10);
     private static final ExecutorCompletionService cs = new ExecutorCompletionService(es);
+    private ValidationManagementService service = new ValidationManagementService();
 
     /**
      * Perform single validation given a schema.
-     * @param schema The schema to perform validation against. Available Schema values are EDM-EXTERNAL and EDM-INTERNAL.
+     * @param schema The schema to perform validation against.
      * @param document The document to validate against
      * @return A validation result
      * @throws InterruptedException
      * @throws ExecutionException
      */
-    public ValidationResult singleValidation(final String schema, final String document) throws InterruptedException,ExecutionException{
-            return submit(new Validator(schema, document)).get();
+    public ValidationResult singleValidation(final String schema,final String version, final String document) throws InterruptedException,ExecutionException{
+            return submit(new Validator(schema, document, version, service)).get();
     }
 
     private Future<ValidationResult> submit(Validator validator) throws InterruptedException {
@@ -42,10 +43,10 @@ public class ValidationExecutionService {
      * @throws InterruptedException
      * @throws ExecutionException
      */
-    public ValidationResultList batchValidation(final String schema, List<String> documents) throws InterruptedException,ExecutionException{
+    public ValidationResultList batchValidation(final String schema, final String version, List<String> documents) throws InterruptedException,ExecutionException{
         List<ValidationResult> results = new ArrayList<>();
         for(final String document : documents) {
-           cs.submit(new Validator(schema,document));
+           cs.submit(new Validator(schema,document, version, service));
         }
         for(int i=0;i<documents.size();i++) {
             Future<ValidationResult> future = cs.take();

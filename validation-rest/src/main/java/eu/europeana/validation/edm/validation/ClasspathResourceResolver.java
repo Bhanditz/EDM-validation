@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -21,7 +22,7 @@ public class ClasspathResourceResolver implements LSResourceResolver {
             LSInput input = new ClasspathLSInput();
             InputStream stream;
             if(!systemId.startsWith("http")) {
-                stream = getClass().getClassLoader().getResourceAsStream(prefix+"/"+systemId);
+                stream = new FileInputStream(prefix+"/"+systemId);
             }else {
                 stream = new URL(systemId).openStream();
             }
