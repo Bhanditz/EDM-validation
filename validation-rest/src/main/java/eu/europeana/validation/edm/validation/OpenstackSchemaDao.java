@@ -1,6 +1,7 @@
 package eu.europeana.validation.edm.validation;
 
 import org.apache.commons.io.FileUtils;
+import org.jclouds.io.payloads.InputStreamPayload;
 import org.mongodb.morphia.Datastore;
 
 import java.io.File;
@@ -14,25 +15,32 @@ import java.util.zip.ZipFile;
 /**
  * Created by ymamakis on 3/21/16.
  */
-public class SchemaDao extends AbstractSchemaDao{
+public class OpenstackSchemaDao extends AbstractSchemaDao {
 
-    public SchemaDao(Datastore datastore, String rootPath){
+    public void setProvider(SwiftProvider provider) {
+        this.provider = provider;
+    }
+
+    private SwiftProvider provider;
+    public OpenstackSchemaDao(Datastore datastore, String rootPath){
         super(datastore,rootPath);
+
     }
 
     @Override
-    public void unzipFile(String fullPath, byte[] in) throws IOException {
+    public void unzipFile(String fullPath, byte[] b) throws IOException {
         File tmp = new File("/tmp/"+new Date().getTime()+".zip");
-        FileUtils.writeByteArrayToFile(tmp,in);
+        FileUtils.writeByteArrayToFile(tmp,b);
         ZipFile zip = new ZipFile(tmp);
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while(entries.hasMoreElements()){
             ZipEntry entry = entries.nextElement();
             if(entry.isDirectory()){
-                new File(fullPath+"/"+entry.getName()).mkdir();
+               //DO NOTHING
             } else {
                 InputStream zipStream = zip.getInputStream(entry);
-                FileUtils.copyInputStreamToFile(zipStream,new File(fullPath+"/"+entry.getName()));
+                provider.getObjectApi().put(fullPath+"/"+entry.getName(),new InputStreamPayload(zipStream));
+
             }
         }
         FileUtils.deleteQuietly(tmp);

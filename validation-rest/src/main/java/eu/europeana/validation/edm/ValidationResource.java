@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
  * REST API Implementation of the Validation Service
  */
 @Path("/")
-@Api( value = "/", description = "EDM External and Internal validation" )
+@Api( value = "/", description = "Schema validation" )
 public class ValidationResource {
 
     private static final Logger logger =  Logger.getRootLogger();
@@ -44,7 +44,7 @@ public class ValidationResource {
 
 
     /**
-     * Single Record validation class. The target schema is supplied as a path parameter (/validate/EDM-{INTERNAL,EXTERNAL})
+     * Single Record validation class. The target schema is supplied as a path parameter
      * and the record via POST as a form-data parameter
      * @param targetSchema The schema to validate against
      * @param record The record to validate

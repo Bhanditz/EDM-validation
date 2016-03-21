@@ -10,9 +10,9 @@ import java.util.List;
  * Created by ymamakis on 3/14/16.
  */
 public class ValidationManagementService {
-    private SchemaDao dao=Configuration.getInstance().getDao();
+    private AbstractSchemaDao dao=Configuration.getInstance().getDao();
 
-    public void setDao(SchemaDao dao){
+    public void setDao(AbstractSchemaDao dao){
         this.dao = dao;
     }
     public List<Schema> getAll(){

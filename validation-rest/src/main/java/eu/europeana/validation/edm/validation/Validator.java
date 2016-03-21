@@ -1,7 +1,6 @@
 package eu.europeana.validation.edm.validation;
 
 import eu.europeana.validation.edm.model.ValidationResult;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -11,16 +10,19 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
-import java.io.*;
-
-import java.util.concurrent.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.StringReader;
+import java.util.concurrent.Callable;
 
 /**
  * EDM Validator class
@@ -36,17 +38,19 @@ public class Validator implements Callable<ValidationResult> {
      * @param schema
      * @param document
      */
-    public Validator(String schema, String document, String version, ValidationManagementService service) {
+    public Validator(String schema, String document, String version, ValidationManagementService service, AbstractLSResourceResolver resolver) {
         this.schema = schema;
         this.document = document;
-        this.service =service;
+        this.service = service;
         this.version = version;
+        this.resolver = resolver;
     }
 
     private String schema;
     private String document;
     private ValidationManagementService service;
     private String version;
+    private AbstractLSResourceResolver resolver;
 
     /**
      * Validate method using JAXP
@@ -60,11 +64,17 @@ public class Validator implements Callable<ValidationResult> {
         source.setByteStream(new ByteArrayInputStream(document.getBytes()));
         try {
             Document doc = EDMParser.getInstance().getEdmParser().parse(source);
-            eu.europeana.validation.edm.model.Schema savedSchema = service.getSchemaByName(schema,version);
-            EDMParser.getInstance().getEdmValidator(savedSchema.getPath(),StringUtils.substringBeforeLast(savedSchema.getPath(),"/")).validate(new DOMSource(doc));
+            eu.europeana.validation.edm.model.Schema savedSchema = service.getSchemaByName(schema, version);
+            EDMParser.getInstance().getEdmValidator(savedSchema.getPath(), StringUtils.substringBeforeLast(savedSchema.getPath(), "/"), resolver).validate(new DOMSource(doc));
             if (StringUtils.isNotEmpty(savedSchema.getSchematronPath())) {
-                StringReader reader = new StringReader(IOUtils.toString(new FileInputStream(savedSchema.getSchematronPath())));
 
+                StringReader reader =null;
+                if(resolver.getClass().isAssignableFrom(OpenstackResourceResolver.class)){
+                    reader = new StringReader(IOUtils.toString(resolver.getSwiftProvider().getObjectApi()
+                            .get(savedSchema.getSchematronPath()).getPayload().openStream()));
+                } else {
+                    reader = new StringReader(IOUtils.toString(new FileInputStream(savedSchema.getSchematronPath())));
+                }
                 DOMResult result = new DOMResult();
                 Transformer transformer = TransformerFactory.newInstance().newTemplates(new StreamSource(reader)).newTransformer();
                 transformer.transform(new DOMSource(doc), result);
@@ -162,15 +172,18 @@ class EDMParser {
      * @param path The path location of the schema
      * @return
      */
-    public javax.xml.validation.Validator getEdmValidator(String path, String rootPath) {
+    public javax.xml.validation.Validator getEdmValidator(String path, String rootPath, AbstractLSResourceResolver resolver) {
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            ClasspathResourceResolver resolver = new ClasspathResourceResolver();
+            //ClasspathResourceResolver resolver = new ClasspathResourceResolver();
             //Set the prefix as schema since this is the folder where the schemas exist in the classpath
             resolver.setPrefix(rootPath);
             factory.setResourceResolver(resolver);
             factory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
             factory.setFeature("http://apache.org/xml/features/honour-all-schemaLocations", true);
+            if (resolver.getClass().isAssignableFrom(OpenstackResourceResolver.class)) {
+                return factory.newSchema(new StreamSource(resolver.getSwiftProvider().getObjectApi().get(path).getPayload().openStream())).newValidator();
+            }
             return factory.newSchema(new StreamSource(new FileInputStream(path))).newValidator();
         } catch (Exception e) {
             e.printStackTrace();

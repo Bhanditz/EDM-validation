@@ -27,7 +27,7 @@ public class ValidationExecutionService {
      * @throws ExecutionException
      */
     public ValidationResult singleValidation(final String schema,final String version, final String document) throws InterruptedException,ExecutionException{
-            return submit(new Validator(schema, document, version, service)).get();
+            return submit(new Validator(schema, document, version, service,Configuration.getInstance().getResolver())).get();
     }
 
     private Future<ValidationResult> submit(Validator validator) throws InterruptedException {
@@ -46,7 +46,7 @@ public class ValidationExecutionService {
     public ValidationResultList batchValidation(final String schema, final String version, List<String> documents) throws InterruptedException,ExecutionException{
         List<ValidationResult> results = new ArrayList<>();
         for(final String document : documents) {
-           cs.submit(new Validator(schema,document, version, service));
+           cs.submit(new Validator(schema,document, version, service,Configuration.getInstance().getResolver()));
         }
         for(int i=0;i<documents.size();i++) {
             Future<ValidationResult> future = cs.take();
